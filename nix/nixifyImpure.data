@@ -1,0 +1,10 @@
+{
+  
+  "cardano-deps": {
+  "url": "https://github.com/input-output-hk/rust-cardano",
+  "rev": "00d81b892aefcf6ff54f90a3a7fcd2c686571627",
+  "date": "2018-11-16T09:54:51+01:00",
+  "sha256": "05z3fdz9wh83k1hnbj4b6wa0akkx7ywzmg2kcdncgzna897fw4pj",
+  "fetchSubmodules": false
+}
+}
