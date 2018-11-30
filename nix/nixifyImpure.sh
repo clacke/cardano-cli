@@ -32,7 +32,7 @@ cargoToml=$(cat Cargo.toml)
 
 for path in "${paths[@]}"; do
   nix_paths+=([$path]="$(nix-build --no-out-link --argstr json "${attrs[$path]}" -E '{json}: with import <nixpkgs> {}; fetchgit (builtins.removeAttrs (builtins.fromJSON json) ["date"])')")
-  cargoToml=${cargoToml//$path/${nix_paths[$path]}}
+  cargoToml=${cargoToml//'path = "'$path/'path = "'${nix_paths[$path]}}
 done
 
 carnixDir=$(mktemp --directory --tmpdir carnix.XXXXXXXXXX)
