@@ -1,5 +1,5 @@
 #!/usr/bin/env nix-shell
-#! nix-shell -p bash coreutils git nix nix-prefetch-git -i bash
+#! nix-shell -p bash cargo carnix coreutils git jq nix nix-prefetch-git rsync gnused -i bash
 
 set -euo pipefail
 
@@ -28,11 +28,29 @@ paths=("${!attrs[@]}")
 unset nix_paths
 declare -A nix_paths
 
+cargoToml=$(cat Cargo.toml)
+
 for path in "${paths[@]}"; do
   nix_paths+=([$path]="$(nix-build --no-out-link --argstr json "${attrs[$path]}" -E '{json}: with import <nixpkgs> {}; fetchgit (builtins.removeAttrs (builtins.fromJSON json) ["date"])')")
+  cargoToml=${cargoToml//$path/${nix_paths[$path]}}
 done
 
-cat <<EOF
+carnixDir=$(mktemp --directory --tmpdir carnix.XXXXXXXXXX)
+rsync -a --exclude .git ./ "$carnixDir"/
+cd "$carnixDir"
+
+printf %s "$cargoToml" > Cargo.toml
+cargo generate-lockfile
+carnix generate-nix --src ./.
+
+unset sedArgs
+sedArgs=()
+for path in "${paths[@]}"; do
+  sedArgs+=( -e "s@${nix_paths[$path]}([^;]*);@"'"'"$path"'\1";@' )
+done
+cargoNix=$(sed -E "${sedArgs[@]}" < Cargo.nix)
+
+cat <<EOF | jq --arg cargoNix "$cargoNix" '.cargoNix = $cargoNix'
 {
   $(for path in "${paths[@]}"; do
     echo "\"$path\": ${attrs[$path]},"

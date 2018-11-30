@@ -35,6 +35,7 @@ runCommand "cardano-cli-src" {
     cp nix/template/pin/default.nix "$path/default.nix"
     cp nix/template/pin/git.nix "$path/git.nix"
     cp nix/template/pin/bump.sh "$path/bump.sh"
+    jq -r ".cargoNix" <<< "$nixifyImpure" > Cargo.nix
   done
   cp nix/template/root/default.nix default.nix
   rm -rf .git .gitmodules
