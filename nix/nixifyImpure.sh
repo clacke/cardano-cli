@@ -50,7 +50,9 @@ for path in "${paths[@]}"; do
 done
 cargoNix=$(sed -E "${sedArgs[@]}" < Cargo.nix)
 
-cat <<EOF | jq --arg cargoNix "$cargoNix" '.cargoNix = $cargoNix'
+cratesIoNix='{ "name": "crates-io.nix", "sha256": "'"$(nix-hash --base32 --type sha256 crates-io.nix)"'" }'
+
+cat <<EOF | jq --arg cargoNix "$cargoNix" --arg cratesIoNix "$cratesIoNix" '.cargoNix = $cargoNix | .cratesIoNix = $cratesIoNix'
 {
   $(for path in "${paths[@]}"; do
     echo "\"$path\": ${attrs[$path]},"

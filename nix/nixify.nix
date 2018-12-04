@@ -3,6 +3,7 @@
 , coreutils ? pkgs.coreutils
 , git ? pkgs.git
 , jq ? pkgs.jq
+, requireFile ? pkgs.requireFile
 , runCommand ? pkgs.runCommand
 , nixifyImpure ? builtins.readFile ./nixifyImpure.data
 }:
@@ -10,6 +11,7 @@
 runCommand "cardano-cli-src" {
   src = ./..;
   inherit nixifyImpure;
+  cratesIoNix = requireFile (builtins.fromJSON nixifyImpure).cratesIoNix;
   buildInputs = [ bash coreutils git jq ];
 } ''
   cp -a $src $out
@@ -36,6 +38,7 @@ runCommand "cardano-cli-src" {
     cp nix/template/pin/git.nix "$path/git.nix"
     cp nix/template/pin/bump.sh "$path/bump.sh"
     jq -r ".cargoNix" <<< "$nixifyImpure" > Cargo.nix
+    cp $cratesIoNix crates-io.nix
   done
   cp nix/template/root/default.nix default.nix
   rm -rf .git .gitmodules
