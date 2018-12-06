@@ -33,7 +33,7 @@ runCommand "cardano-cli-src" {
     rm -rf "$path"
     mkdir "$path"
 
-    jq --arg path "$path" '[$path]' <<< "$nixifyImpure" > "$path/git.json"
+    jq --arg path "$path" '.[$path]' <<< "$nixifyImpure" > "$path/git.json"
     cp nix/template/pin/default.nix "$path/default.nix"
     cp nix/template/pin/git.nix "$path/git.nix"
     cp nix/template/pin/bump.sh "$path/bump.sh"

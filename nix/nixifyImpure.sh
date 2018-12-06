@@ -46,7 +46,7 @@ carnix generate-nix --src ./.
 unset sedArgs
 sedArgs=()
 for path in "${paths[@]}"; do
-  sedArgs+=( -e "s@${nix_paths[$path]}([^;]*);@"'"'"$path"'\1";@' )
+  sedArgs+=( -e "s,exclude [[][^]]*[]] ${nix_paths[$path]}([^;]*);,import ./$path/git.nix;," )
 done
 cargoNix=$(sed -E "${sedArgs[@]}" < Cargo.nix)
 
